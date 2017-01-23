@@ -156,22 +156,6 @@ public class AddressBook {
      */
 	private static final int DISPLAYED_INDEX_OFFSET = 1;
 
-	/*
-	 * We now use a Hashmap to store details of a single person. The constants
-	 * given below are the keys for the different data elements of a person
-	 */
-	// private static final String PersonProperty.NAME = "name";
-	// private static final String PersonProperty.EMAIL = "email";
-	// private static final String PersonProperty.PHONE = "phone";
-
-	/*
-	 * We shall now use enum instead.
-	 */
-
-	private enum PersonProperty {
-		NAME, EMAIL, PHONE
-	};
-
     /**
      * If the first non-whitespace character in a user's input line is this, that line will be ignored.
      */
@@ -201,17 +185,24 @@ public class AddressBook {
 	private static final ArrayList<HashMap<PersonProperty, String>> ALL_PERSONS = new ArrayList<>();
 
     /**
-     * Stores the most recent list of persons shown to the user as a result of a user command.
-     * This is a subset of the full list. Deleting persons in the pull list does not delete
-     * those persons from this list.
-     */
-	// initial view is of all persons
-	private static ArrayList<HashMap<PersonProperty, String>> latestPersonListingView = getAllPersonsInAddressBook();
+	 * Stores the most recent list of persons shown to the user as a result of a
+	 * user command. This is a subset of the full list. Deleting persons in the
+	 * pull list does not delete those persons from this list. Initial view is
+	 * of all persons in address book.
+	 */
+	private static ArrayList<HashMap<PersonProperty, String>> latestPersonListingView = ALL_PERSONS;
     
     /**
      * The path to the file used for storing person data.
      */
     private static String storageFilePath;
+
+	/*
+	 * Using enum for the different data elements of a person.
+	 */
+	private enum PersonProperty {
+		NAME, EMAIL, PHONE
+	};
 
     /*
      * NOTE : =============================================================
@@ -351,8 +342,8 @@ public class AddressBook {
      * If a file already exists, it must be a regular file.
      */
     private static boolean hasValidFileName(Path filePath) {
-        return filePath.getFileName().toString().lastIndexOf('.') > 0
-                && (!Files.exists(filePath) || Files.isRegularFile(filePath));
+        final boolean hasExtension = filePath.getFileName().toString().lastIndexOf('.') > 0;
+		return hasExtension && (!Files.exists(filePath) || Files.isRegularFile(filePath));
     }
 
     /**
@@ -499,7 +490,7 @@ public class AddressBook {
 	private static ArrayList<HashMap<PersonProperty, String>> getPersonsWithNameContainingAnyKeyword(
 			Collection<String> keywords) {
 		final ArrayList<HashMap<PersonProperty, String>> matchedPersons = new ArrayList<>();
-		for (HashMap<PersonProperty, String> person : getAllPersonsInAddressBook()) {
+		for (HashMap<PersonProperty, String> person : ALL_PERSONS) {
             final Set<String> wordsInName = new HashSet<>(splitByWhitespace(getNameFromPerson(person)));
             if (!Collections.disjoint(wordsInName, keywords)) {
                 matchedPersons.add(person);
@@ -589,7 +580,7 @@ public class AddressBook {
      * @return feedback display message for the operation result
      */
     private static String executeListAllPersonsInAddressBook() {
-		ArrayList<HashMap<PersonProperty, String>> toBeDisplayed = getAllPersonsInAddressBook();
+		ArrayList<HashMap<PersonProperty, String>> toBeDisplayed = ALL_PERSONS;
         showToUser(toBeDisplayed);
         return getMessageForPersonsDisplayedSummary(toBeDisplayed);
     }
@@ -616,6 +607,7 @@ public class AddressBook {
     private static String getUserInput() {
         System.out.print(LINE_PREFIX + "Enter command: ");
         String inputLine = SCANNER.nextLine();
+
         // silently consume all blank and comment lines
         while (inputLine.trim().isEmpty() || inputLine.trim().charAt(0) == INPUT_COMMENT_MARKER) {
             inputLine = SCANNER.nextLine();
@@ -623,23 +615,9 @@ public class AddressBook {
         return inputLine;
     }
 
-   /*
-    * NOTE : =============================================================
-    * Note how the method below uses Java 'Varargs' feature so that the
-    * method can accept a varying number of message parameters.
-    * ====================================================================
-    */
-
     /**
-     * Shows a message to the user
-     */
-	// private static void showToUser(String... message) {
-	// for (String m : message) {
-	// System.out.println(LINE_PREFIX + m);
-	// }
-	// }
-
-	// Try using an array of String instead
+	 * Shows a message to the user (no varargs)
+	 */
 	private static void showToUser(String[] message) {
         for (String m : message) {
             System.out.println(LINE_PREFIX + m);
@@ -807,7 +785,7 @@ public class AddressBook {
      */
 	private static void addPersonToAddressBook(HashMap<PersonProperty, String> person) {
         ALL_PERSONS.add(person);
-        savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
+		savePersonsToFile(ALL_PERSONS, storageFilePath);
     }
 
     /**
@@ -822,16 +800,9 @@ public class AddressBook {
 	private static boolean deletePersonFromAddressBook(HashMap<PersonProperty, String> targetInModel) {
 		final boolean changed = ALL_PERSONS.remove(targetInModel);
         if (changed) {
-            savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
+			savePersonsToFile(ALL_PERSONS, storageFilePath);
         }
         return changed;
-    }
-
-    /**
-     * Returns all persons in the address book
-     */
-	private static ArrayList<HashMap<PersonProperty, String>> getAllPersonsInAddressBook() {
-        return ALL_PERSONS;
     }
 
     /**
@@ -839,7 +810,7 @@ public class AddressBook {
      */
     private static void clearAddressBook() {
         ALL_PERSONS.clear();
-        savePersonsToFile(getAllPersonsInAddressBook(), storageFilePath);
+		savePersonsToFile(ALL_PERSONS, storageFilePath);
     }
 
     /**
