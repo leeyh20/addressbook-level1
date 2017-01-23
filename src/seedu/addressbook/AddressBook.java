@@ -198,7 +198,6 @@ public class AddressBook {
     /**
      * List of all persons in the address book.
      */
-    //private static final ArrayList<String[]> ALL_PERSONS = new ArrayList<>();
 	private static final ArrayList<HashMap<PersonProperty, String>> ALL_PERSONS = new ArrayList<>();
 
     /**
@@ -206,11 +205,8 @@ public class AddressBook {
      * This is a subset of the full list. Deleting persons in the pull list does not delete
      * those persons from this list.
      */
-	private static ArrayList<HashMap<PersonProperty, String>> latestPersonListingView = getAllPersonsInAddressBook(); // initial
-																														// view
-																														// is
-																														// of
-																														// all
+	// initial view is of all persons
+	private static ArrayList<HashMap<PersonProperty, String>> latestPersonListingView = getAllPersonsInAddressBook();
     
     /**
      * The path to the file used for storing person data.
@@ -282,13 +278,9 @@ public class AddressBook {
         if (args.length >= 2) {
 			showToUser(new String[] { MESSAGE_INVALID_PROGRAM_ARGS });
             exitProgram();
-        }
-
-        if (args.length == 1) {
+        } else if (args.length == 1) {
             setupGivenFileForStorage(args[0]);
-        }
-
-        if(args.length == 0) {
+        } else if(args.length == 0) {
             setupDefaultFileForStorage();
         }
     }
@@ -299,12 +291,10 @@ public class AddressBook {
      * Exits if the file name is not acceptable.
      */
     private static void setupGivenFileForStorage(String filePath) {
-
         if (!isValidFilePath(filePath)) {
 			showToUser(new String[] { String.format(MESSAGE_INVALID_FILE, filePath) });
             exitProgram();
         }
-
         storageFilePath = filePath;
         createFileIfMissing(filePath);
     }
