@@ -496,10 +496,17 @@ public class AddressBook {
      */
 	private static ArrayList<HashMap<PersonProperty, String>> getPersonsWithNameContainingAnyKeyword(
 			Collection<String> keywords) {
+
+		// Case insensitive requires keywords to be converted to lower case
+		Collection<String> lowerCaseKeywords = new ArrayList<String>();
+		for (String keyword : keywords) {
+			lowerCaseKeywords.add(keyword.toLowerCase());
+		}
 		final ArrayList<HashMap<PersonProperty, String>> matchedPersons = new ArrayList<>();
 		for (HashMap<PersonProperty, String> person : ALL_PERSONS) {
-            final Set<String> wordsInName = new HashSet<>(splitByWhitespace(getNameFromPerson(person)));
-            if (!Collections.disjoint(wordsInName, keywords)) {
+			// Case insensitive requires name to be converted to lower case
+			final Set<String> wordsInName = new HashSet<>(splitByWhitespace(getNameFromPerson(person).toLowerCase()));
+			if (!Collections.disjoint(wordsInName, lowerCaseKeywords)) {
                 matchedPersons.add(person);
             }
         }
