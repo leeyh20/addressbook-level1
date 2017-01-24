@@ -18,8 +18,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Scanner;
 import java.util.Set;
@@ -115,6 +117,11 @@ public class AddressBook {
     private static final String COMMAND_LIST_WORD = "list";
     private static final String COMMAND_LIST_DESC = "Displays all persons as a list with index numbers.";
     private static final String COMMAND_LIST_EXAMPLE = COMMAND_LIST_WORD;
+
+	private static final String COMMAND_SORT_WORD = "sort";
+	private static final String COMMAND_SORT_DESC = "Displays all persons as a list sorted in alphabetical order "
+													+ "with index numbers.";
+	private static final String COMMAND_SORT_EXAMPLE = COMMAND_SORT_WORD;
 
     private static final String COMMAND_DELETE_WORD = "delete";
     private static final String COMMAND_DELETE_DESC = "Deletes a person identified by the index number used in "
@@ -217,14 +224,7 @@ public class AddressBook {
 
     public static void main(String[] args) {
         showWelcomeMessage();
-        if (args.length >= 2) {
-			showToUser(new String[] { MESSAGE_INVALID_PROGRAM_ARGS });
-		    exitProgram();
-		} else if (args.length == 1) {
-		    setupGivenFileForStorage(args[0]);
-		} else if(args.length == 0) {
-		    setupDefaultFileForStorage();
-		}
+        processProgramArgs(args);
         loadDataFromStorage();
         while (true) {
             String userCommand = getUserInput();
@@ -385,6 +385,8 @@ public class AddressBook {
             return executeFindPersons(commandArgs);
         case COMMAND_LIST_WORD:
             return executeListAllPersonsInAddressBook();
+		case COMMAND_SORT_WORD:
+			return executeSortedListAllPersonsInAddressBook();
         case COMMAND_DELETE_WORD:
             return executeDeletePerson(commandArgs);
         case COMMAND_CLEAR_WORD:
@@ -595,6 +597,21 @@ public class AddressBook {
      */
     private static String executeListAllPersonsInAddressBook() {
 		ArrayList<HashMap<PersonProperty, String>> toBeDisplayed = ALL_PERSONS;
+        showToUser(toBeDisplayed);
+        return getMessageForPersonsDisplayedSummary(toBeDisplayed);
+    }
+    
+    /**
+     * Displays all persons in the address book to the user; in alphabetical order.
+     *
+     * @return feedback display message for the operation result
+     */
+    private static String executeSortedListAllPersonsInAddressBook() {
+    	// We are going to sort by alphabetical order of their name
+    	MapComparator comparator = new MapComparator(PersonProperty.NAME);
+    	// Make a copy so that the original array list is not affected
+		ArrayList<HashMap<PersonProperty, String>> toBeDisplayed = new ArrayList<HashMap<PersonProperty, String>>(ALL_PERSONS);
+		toBeDisplayed.sort(comparator);
         showToUser(toBeDisplayed);
         return getMessageForPersonsDisplayedSummary(toBeDisplayed);
     }
@@ -1100,7 +1117,8 @@ public class AddressBook {
     private static String getUsageInfoForAllCommands() {
         return getUsageInfoForAddCommand() + LS
                 + getUsageInfoForFindCommand() + LS
-                + getUsageInfoForViewCommand() + LS
+                + getUsageInfoForListCommand() + LS
+                + getUsageInfoForSortCommand() + LS
                 + getUsageInfoForDeleteCommand() + LS
                 + getUsageInfoForClearCommand() + LS
                 + getUsageInfoForExitCommand() + LS
@@ -1134,10 +1152,16 @@ public class AddressBook {
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_CLEAR_EXAMPLE) + LS;
     }
 
-    /** Returns the string for showing 'view' command usage instruction */
-    private static String getUsageInfoForViewCommand() {
+    /** Returns the string for showing 'list' command usage instruction */
+    private static String getUsageInfoForListCommand() {
         return String.format(MESSAGE_COMMAND_HELP, COMMAND_LIST_WORD, COMMAND_LIST_DESC) + LS
                 + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_LIST_EXAMPLE) + LS;
+    }
+    
+    /** Returns the string for showing 'sort' command usage instruction */
+    private static String getUsageInfoForSortCommand() {
+        return String.format(MESSAGE_COMMAND_HELP, COMMAND_SORT_WORD, COMMAND_SORT_DESC) + LS
+                + String.format(MESSAGE_COMMAND_HELP_EXAMPLE, COMMAND_SORT_EXAMPLE) + LS;
     }
 
     /** Returns string for showing 'help' command usage instruction */
@@ -1182,6 +1206,31 @@ public class AddressBook {
      */
     private static ArrayList<String> splitByWhitespace(String toSplit) {
         return new ArrayList<>(Arrays.asList(toSplit.trim().split("\\s+")));
+    }
+    
+    /**
+     * This class provides the comparator to sort a Map by alphabetical order of the string
+     * returned of a specified key (key type is PersonProperty enum)
+     */
+    private static class MapComparator implements Comparator<Map<PersonProperty, String>>
+    {
+        private final PersonProperty key;
+
+        public MapComparator(PersonProperty name)
+        {
+            this.key = name;
+        }
+
+        public int compare(Map<PersonProperty, String> o1,
+                           Map<PersonProperty, String> o2)
+        {
+        	// Case insensitive alphabetical order comparison
+            String firstValue = o1.get(key);
+            firstValue = firstValue.toLowerCase();
+            String secondValue = o2.get(key);
+            secondValue = secondValue.toLowerCase();
+            return firstValue.compareTo(secondValue);
+        }
     }
 
 }
