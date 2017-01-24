@@ -835,10 +835,6 @@ public class AddressBook {
      *
      * @param person whose name you want
      */
-	// private static String getNameFromPerson(String[] person) {
-	// return person[PERSON_DATA_INDEX_NAME];
-	// }
-
 	private static String getNameFromPerson(HashMap<PersonProperty, String> person) {
 		return person.get(PersonProperty.NAME);
 	}
@@ -939,6 +935,7 @@ public class AddressBook {
      */
 	private static Optional<ArrayList<HashMap<PersonProperty, String>>> decodePersonsFromStrings(
 			ArrayList<String> encodedPersons) {
+
 		final ArrayList<HashMap<PersonProperty, String>> decodedPersons = new ArrayList<>();
         for (String encodedPerson : encodedPersons) {
 			final Optional<HashMap<PersonProperty, String>> decodedPerson = decodePersonFromString(encodedPerson);
@@ -1050,7 +1047,8 @@ public class AddressBook {
      * @param name to be validated
      */
     private static boolean isPersonNameValid(String name) {
-        return name.matches("(\\w|\\s)+");  // name is nonempty mixture of alphabets and whitespace
+		// name is nonempty mixture of alphabets and whitespace
+		return name.matches("(\\w|\\s)+");
         //TODO: implement a more permissive validation
     }
 
@@ -1060,7 +1058,8 @@ public class AddressBook {
      * @param phone to be validated
      */
     private static boolean isPersonPhoneValid(String phone) {
-        return phone.matches("\\d+");    // phone nonempty sequence of digits
+		// phone nonempty sequence of digits
+		return phone.matches("\\d+");
         //TODO: implement a more permissive validation
     }
 
@@ -1071,7 +1070,8 @@ public class AddressBook {
      * @return whether arg is a valid person email
      */
     private static boolean isPersonEmailValid(String email) {
-        return email.matches("\\S+@\\S+\\.\\S+"); // email is [non-whitespace]@[non-whitespace].[non-whitespace]
+		// email is [non-whitespace]@[non-whitespace].[non-whitespace]
+		return email.matches("\\S+@\\S+\\.\\S+");
         //TODO: implement a more permissive validation
     }
 
